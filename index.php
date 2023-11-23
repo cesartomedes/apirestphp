@@ -16,14 +16,13 @@ if ($conexion->connect_error) {
 
 header('Content-type: application/json');
 $metodo = $_SERVER['REQUEST_METHOD'];
-print_r($metodo);
 
 switch($metodo)
 {
 
         // select
         case 'GET':
-        echo ' consulta de registros - GET';
+        consultaSelect($conexion);
         break;
 
         // insert
@@ -44,4 +43,19 @@ switch($metodo)
         default:
         echo ' Metodo no permitido';
         break;
+}
+
+function consultaSelect($conexion){
+    $sql = 'SELECT * FROM usuarios';
+    $resultado = $conexion->query($sql);
+
+    if ($resultado) {
+        $datos = array();
+
+        while ($fila = $resultado->fetch_assoc()) {
+            $datos[] = $fila;
+        }
+
+        echo json_encode($datos);
+    }
 }
