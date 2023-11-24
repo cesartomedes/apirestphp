@@ -22,11 +22,12 @@ switch($metodo)
 
         // select
         case 'GET':
-        consultaSelect($conexion);
+        consulta($conexion);
         break;
 
         // insert
         case 'POST':
+        insertar($conexion);
         echo ' insercion de registros - POST';
         break;    
         
@@ -45,7 +46,7 @@ switch($metodo)
         break;
 }
 
-function consultaSelect($conexion){
+function consulta($conexion){
     $sql = 'SELECT * FROM usuarios';
     $resultado = $conexion->query($sql);
 
@@ -58,4 +59,24 @@ function consultaSelect($conexion){
 
         echo json_encode($datos);
     }
+}
+
+function insertar($conexion){
+    $dato = json_decode(file_get_contents('php://input'), true);
+
+    $nombre = $dato['nombre'];
+
+    print_r($nombre);
+
+    $sql = "INSERT INTO usuarios(nombre) VALUES ('$nombre')";
+    $resultado = $conexion->query($sql);
+
+    if ($resultado) {
+        $dato['id'] = $conexion->insert_id;
+
+        echo json_encode($dato);
+    }else{
+        echo json_encode(array('error'=> 'error al'));
+    }
+
 }
