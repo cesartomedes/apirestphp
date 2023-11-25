@@ -17,12 +17,18 @@ if ($conexion->connect_error) {
 header('Content-type: application/json');
 $metodo = $_SERVER['REQUEST_METHOD'];
 
+$path = isset($_SERVER['PATH_INFO'])?$_SERVER['PATH_INFO']:'/';
+
+$buscardId = explode('/', $path);
+
+$id = ($path!=='/') ? end($buscardId):null;
+
 switch($metodo)
 {
 
         // select
         case 'GET':
-        consulta($conexion);
+        consulta($conexion, $id);
         break;
 
         // insert
@@ -33,12 +39,12 @@ switch($metodo)
         
         //update
         case 'PUT':
-        echo ' edicion de registros - PUT';
+        actualizar($conexion, $id);
         break;    
         
         //delete
         case 'DELETE':
-        echo ' borrado de registros - DELETE';
+        borrar($conexion, $id);
         break;    
 
         default:
@@ -46,8 +52,8 @@ switch($metodo)
         break;
 }
 
-function consulta($conexion){
-    $sql = 'SELECT * FROM usuarios';
+function consulta($conexion, $id){
+    $sql=($id===null) ? "SELECT * FROM usuarios":"SELECT * FROM usuarios WHERE id=$id";
     $resultado = $conexion->query($sql);
 
     if ($resultado) {
@@ -76,7 +82,40 @@ function insertar($conexion){
 
         echo json_encode($dato);
     }else{
-        echo json_encode(array('error'=> 'error al'));
+        echo json_encode(array('error'=> 'error al registrar un usuario'));
     }
 
+}
+    function borrar($conexion, $id){
+        echo "el id a borrar es: ".$id;
+
+        $sql = "DELETE FROM usuarios WHERE id=$id";
+        $resultado = $conexion->query($sql);
+    
+        if ($resultado) {
+            echo json_encode(array('MENSAJE'=> 'Usuario eliminado'));
+        }else{
+            echo json_encode(array('error'=> 'error al borrar un usuario'));
+        }
+
+}
+
+function actualizar($conexion, $id){
+
+    $dato = json_decode(file_get_contents('php://input'), true);
+
+    $nombre = $dato['nombre'];
+    echo "el id a editar es: " .$id. " con el nombre ".$nombre; 
+
+    $sql = "UPDATE usuarios SET nombre = '$nombre' WHERE id = '$id'";
+    $resultado = $conexion->query($sql);
+
+    if ($resultado) {
+        echo json_encode(array('MENSAJE'=> ' Usuario editado'));
+    }else{
+        echo json_encode(array('error'=> ' error al editar un usuario'));
+    }
+
+
+    
 }
